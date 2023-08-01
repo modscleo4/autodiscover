@@ -1,0 +1,41 @@
+{
+  "name": "autodiscover-app",
+  "version": "1.0.0",
+  "description": "Webmail autodiscover configuration provider.",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tspc",
+    "clean": "tsc -b --clean",
+    "dev": "nodemon --inspect src/server.ts",
+    "start": "node .",
+    "test": "ts-node-esm src/test/index.ts",
+    "cannon": "npx autocannon -c 500 -d 30 --renderStatusCodes --latency localhost:3000/bin",
+    "generateKeys": "node ./bin/generateKeys.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/modscleo4/autodiscover.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "autocannon": "^7.10.0",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "ts-patch": "^3.0.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.0.3",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "fast-xml-parser": "^4.2.5",
+    "midori": "github:modscleo4/midori"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
