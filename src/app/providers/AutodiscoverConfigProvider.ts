@@ -36,12 +36,12 @@ export type AutodiscoverConfig = {
 };
 
 export abstract class AutodiscoverConfigProvider extends ConfigProvider<AutodiscoverConfig> {
-    static config: string = 'autodiscover::autodiscover';
+    static override config: symbol = Symbol('autodiscover::autodiscover');
 }
 
 export default function AutodiscoverConfigProviderFactory(config: AutodiscoverConfig): Constructor<AutodiscoverConfigProvider> & { [K in keyof typeof AutodiscoverConfigProvider]: typeof AutodiscoverConfigProvider[K] } {
     return class extends AutodiscoverConfigProvider {
-        register(app: Application): AutodiscoverConfig {
+        override register(app: Application): AutodiscoverConfig {
             return config;
         }
     }

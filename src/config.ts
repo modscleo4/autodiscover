@@ -15,9 +15,17 @@
  */
 
 import { Server } from "midori/app";
-import { CORSConfigProviderFactory, ErrorConfigProviderFactory, JWTConfigProviderFactory, RequestConfigProviderFactory, ResponseConfigProviderFactory } from "midori/providers";
+import { CORSConfigProviderFactory, ErrorConfigProviderFactory, JWTConfigProviderFactory, RequestConfigProviderFactory, ResponseConfigProviderFactory, CompressionAlgorithm } from "midori/providers";
 
 import AutodiscoverConfigProviderFactory from "@app/providers/AutodiscoverConfigProvider.js";
+
+/**
+ * Configuration Providers
+ *
+ * Define your configuration providers here.
+ * Use the server.configure() method to add configuration providers to the application.
+ * Use the app.config.get() method to recover the configuration in your handlers and/or middleware constructors.
+ */
 
 export default function config(server: Server): void {
     // Add configs here using `server.configure(ConfigProviderFactory(config))`
@@ -47,7 +55,6 @@ export default function config(server: Server): void {
             enc: process.env.JWE_ENCRYPTION || 'A256GCM',
             secret: process.env.JWE_SECRET,
             privateKeyFile: process.env.JWE_PRIVATE_KEY,
-            // ephemeralPrivateKeyFile: process.env.JWE_EPHEMERAL_KEY,
         }
     }));
 
@@ -57,7 +64,13 @@ export default function config(server: Server): void {
 
     server.configure(ResponseConfigProviderFactory({
         compression: {
-            contentTypes: ['*/*']
+            enabled: false,
+            contentTypes: ['*/*'],
+            levels: {
+                [CompressionAlgorithm.BROTLI]: 4,
+                [CompressionAlgorithm.DEFLATE]: 6,
+                [CompressionAlgorithm.GZIP]: 6,
+            }
         }
     }));
 

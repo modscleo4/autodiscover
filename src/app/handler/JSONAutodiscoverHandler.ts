@@ -29,7 +29,7 @@ export default class AutodiscoverHandler extends Handler {
         this.#config = app.config.get(AutodiscoverConfigProvider);
     }
 
-    async handle(req: Request<{ Autodiscover: { Request: { EMailAddress: string, AcceptableResponseSchema: string; }; }; }>): Promise<Response> {
+    override async handle(req: Request<{ Autodiscover: { Request: { EMailAddress: string, AcceptableResponseSchema: string; }; }; }>): Promise<Response> {
         if (!this.#config) {
             throw new HTTPError('Autodiscover not configured', EStatusCode.INTERNAL_SERVER_ERROR);
         }

@@ -21,21 +21,26 @@ import { Server } from "midori/app";
 import pipeline from "./pipeline.js";
 import providers from "./providers.js";
 import config from './config.js';
+import cron from './cron.js';
 
 dotenv.config({ });
-dotenv.config({ path: './.env.dev', override: true });
 
 export const server = new Server({ production: process.env.NODE_ENV?.toUpperCase() === 'PRODUCTION' });
+
+if (!server.production) {
+    dotenv.config({ path: './.env.dev' });
+}
 
 config(server);
 providers(server);
 pipeline(server);
+cron(server);
 
 const port = parseInt(process.env.PORT || '3000');
 
 await new Promise<void>((resolve, reject) => {
     server.listen(port).on('listening', async () => {
-        console.log(`Server is running on port ${port}`);
+        console.log(`Server is running on port ${port} in ${server.production ? 'production' : 'development'} mode`);
         resolve();
     }).on('close', async () => {
         //

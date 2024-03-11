@@ -25,12 +25,21 @@ import {
     ImplicitOptionsMiddleware,
     MethodNotAllowedMiddleware,
     NotFoundMiddleware,
-    ParseBodyMiddleware,
     PublicPathMiddlewareFactory,
     RequestLoggerMiddleware,
     ResponseCompressionMiddleware,
     RouterMiddleware
 } from "midori/middlewares";
+
+import ParseBodyMiddleware from "@app/middleware/ParseBodyMiddleware.js";
+
+/**
+ * Pipelining
+ *
+ * Define your pipeline here.
+ * Use the server.pipe() method to add middlewares to the pipeline.
+ * The order here matters, as the middlewares are chained in the same order they are added.
+ */
 
 export default function pipeline(server: Server): void {
     /**
@@ -64,7 +73,7 @@ export default function pipeline(server: Server): void {
 
     // Add your own pre-processing middlewares here
     //
-    // server.pipe(ResponseCompressionMiddleware);
+    server.pipe(ResponseCompressionMiddleware);
 
     /**
      * Register the router middleware, which will handle all incoming requests

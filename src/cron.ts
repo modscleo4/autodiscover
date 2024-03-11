@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { Response } from "midori/http";
-import { builder as xmlBuilder } from "@core/lib/xml.js";
+import { Server } from "midori/app";
 
-export default function xmlTransformer(): void {
-    function xmlTransformerFn(data: unknown): Buffer {
-        return Buffer.from(xmlBuilder.build(data));
-    }
+/**
+ * Cron Jobs
+ *
+ * Define your cron jobs here.
+ * Use the server.schedule() method to add cron jobs to the application.
+ */
 
-    Response.installTransformer('text/xml', xmlTransformerFn);
-    Response.installTransformer('application/xml', xmlTransformerFn);
+export default function cron(server: Server): void {
+
 }

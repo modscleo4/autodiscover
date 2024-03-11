@@ -32,7 +32,7 @@ const Router = new RouterWrapper();
  */
 
 Router.get('/', AutodiscoverHandler);
-Router.get('/autodiscover/autodiscover.xml', AutodiscoverHandler);
+Router.post('/autodiscover/autodiscover.xml', AutodiscoverHandler);
 Router.get('/autodiscover/autodiscover.json', JSONAutodiscoverHandler);
 
 export default Router;
