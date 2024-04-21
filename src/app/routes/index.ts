@@ -34,5 +34,6 @@ const Router = new RouterWrapper();
 Router.get('/', AutodiscoverHandler);
 Router.post('/autodiscover/autodiscover.xml', AutodiscoverHandler);
 Router.get('/autodiscover/autodiscover.json', JSONAutodiscoverHandler);
+Router.get('/autodiscover/autodiscover.json/v1.0/{Email}', JSONAutodiscoverHandler);
 
 export default Router;

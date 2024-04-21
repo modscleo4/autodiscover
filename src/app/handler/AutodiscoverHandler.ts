@@ -23,23 +23,34 @@ import { EStatusCode, Handler, Request, Response } from 'midori/http';
 import { AutodiscoverConfig, AutodiscoverConfigProvider } from '@app/providers/AutodiscoverConfigProvider.js';
 import { parser as xmlParser } from '@core/lib/xml.js';
 
+type AutodiscoverRequest = {
+    Autodiscover: {
+        Request: {
+            EMailAddress: string;
+            AcceptableResponseSchema: string;
+        };
+    };
+};
+
 export default class AutodiscoverHandler extends Handler {
-    #defaultFile: string;
+    #defaultFileOutlook: string;
+    #defaultFileMobileSync: string;
     #config?: AutodiscoverConfig;
 
     constructor(app: Application) {
         super(app);
 
-        this.#defaultFile = readFileSync('autodiscover.default.xml', { encoding: 'utf-8' });
+        this.#defaultFileOutlook = readFileSync('autodiscover.outlook.xml', { encoding: 'utf-8' });
+        this.#defaultFileMobileSync = readFileSync('autodiscover.mobilesync.xml', { encoding: 'utf-8' });
         this.#config = app.config.get(AutodiscoverConfigProvider);
     }
 
-    override async handle(req: Request<{ Autodiscover: { Request: { EMailAddress: string, AcceptableResponseSchema: string; }; }; }>): Promise<Response> {
+    async handleOutlook(req: Request<AutodiscoverRequest>): Promise<Response> {
         if (!this.#config) {
             throw new HTTPError('Autodiscover not configured', EStatusCode.INTERNAL_SERVER_ERROR);
         }
 
-        const xml = xmlParser.parse(this.#defaultFile);
+        const xml = xmlParser.parse(this.#defaultFileOutlook);
 
         const user = req.parsedBody?.Autodiscover?.Request?.EMailAddress;
         if (user) {
@@ -64,5 +75,41 @@ export default class AutodiscoverHandler extends Handler {
         }
 
         return Response.auto(xml, req, ['text/xml', 'application/xml']);
+    }
+
+    async handleMobileSync(req: Request<AutodiscoverRequest>): Promise<Response> {
+        if (!this.#config) {
+            throw new HTTPError('Autodiscover not configured', EStatusCode.INTERNAL_SERVER_ERROR);
+        }
+
+        const xml = xmlParser.parse(this.#defaultFileMobileSync);
+
+        const user = req.parsedBody?.Autodiscover?.Request?.EMailAddress;
+        if (user) {
+            xml.Autodiscover.Response.User = {
+                EMailAddress: user,
+            };
+        }
+
+        xml.Autodiscover.Response.Action.Settings.Server.Url = this.#config.activeSync.url + '/Microsoft-Server-ActiveSync';
+        xml.Autodiscover.Response.Action.Settings.Server.Name = this.#config.activeSync.url + '/Microsoft-Server-ActiveSync';
+
+        return Response.auto(xml, req, ['text/xml', 'application/xml']);
+    }
+
+    override async handle(req: Request<AutodiscoverRequest>): Promise<Response> {
+        const schema = req.parsedBody?.Autodiscover?.Request?.AcceptableResponseSchema;
+
+        switch (schema) {
+            case 'http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a':
+            case 'https://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a':
+                return this.handleOutlook(req);
+
+            case 'http://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006':
+            case 'https://schemas.microsoft.com/exchange/autodiscover/mobilesync/responseschema/2006':
+                return this.handleMobileSync(req);
+        }
+
+        return Response.empty();
     }
 }

@@ -29,22 +29,22 @@ export default class AutodiscoverHandler extends Handler {
         this.#config = app.config.get(AutodiscoverConfigProvider);
     }
 
-    override async handle(req: Request<{ Autodiscover: { Request: { EMailAddress: string, AcceptableResponseSchema: string; }; }; }>): Promise<Response> {
+    override async handle(req: Request): Promise<Response> {
         if (!this.#config) {
             throw new HTTPError('Autodiscover not configured', EStatusCode.INTERNAL_SERVER_ERROR);
         }
 
-        const email = req.query.get('Email');
+        const email = req.params.get('Email') ?? req.query.get('Email');
         const protocol = req.query.get('Protocol');
 
-        switch (protocol) {
-            case 'ActiveSync':
+        switch (protocol?.toLocaleLowerCase()) {
+            case 'activesync':
                 return Response.json({
                     Protocol: 'ActiveSync',
                     Url: this.#config.activeSync.url,
                 });
 
-            case 'AutodiscoverV1':
+            case 'autodiscoverv1':
                 return Response.json({
                     Protocol: 'AutodiscoverV1',
                     Url: `${req.headers.host}/autodiscover/autodiscover.xml`
